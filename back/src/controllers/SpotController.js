@@ -6,25 +6,31 @@ module.exports = {
     const { tech } = req.query;
     const spots = await Spot.find({ techs: tech });
     return res.json(spots);
+    /*const spots = await Spot.find();
+    return res.json(spots)*/
   },
 
   async store(req, res) {
-    const { fileName } = req.file;
+    const { filename } = req.file;
     const { price, techs, company } = req.body;
     const { user_id } = req.headers;
-
-    const user = User.findById(user_id);
-
+    const user = await User.findById(user_id);
     if (!user) return req.status(400).json({ error: "Usuário não existe" });
 
-    const spot = Spot.create({
+    const spot = await Spot.create({
       user: user_id,
-      thumbanail: fileName,
+      thumbnail: filename,
       price,
-      techs: techs.split("-").company(tech => tech.trim()),
+      techs: techs.split("-"),
       company
     });
 
+    console.log("spot criado", spot)
+
     return res.json(spot);
+  },
+  async delete(req, res) {
+    await Spot.findByIdAndRemove(req.params.id);
+    return res.json({ ok: "removido com sucesso" })
   }
 };
